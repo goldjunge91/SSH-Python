@@ -1,7 +1,28 @@
+import csv
+import platform
+from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import subprocess
 import os
+
+def log_key_details_to_csv(path):
+    """Log the generated key details to a CSV file."""
+    # Define the CSV filename
+    csv_filename = "ssh_keys_database.csv"
+    # Check if the CSV file exists to decide on the write mode and header
+    file_exists = os.path.exists(csv_filename)
+    
+    # Fields for the CSV
+    fields = ["Operating System", "File Name", "Creation Date", "Copied to Server"]
+    record = [platform.system(), os.path.basename(path), datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "No"]
+    
+    # Write to the CSV
+    with open(csv_filename, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        if not file_exists:
+            writer.writerow(fields)
+        writer.writerow(record)
 
 def update_bit_lengths(key_type, bit_length_dropdown):
     """Update the available bit lengths based on the selected key type."""
@@ -46,6 +67,8 @@ def generate_ssh_key(options):
 
     try:
         subprocess.run(command, check=True)
+        # Log to the CSV
+        log_key_details_to_csv(path)
         messagebox.showinfo("Success", f"SSH key generated successfully at {path}!")
     except Exception as e:
         messagebox.showerror("Error", str(e))
