@@ -1,0 +1,3 @@
+.ssh_config/*
+.ssh_config/**.pub
+__pycache__
